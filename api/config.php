@@ -7,7 +7,7 @@
 //Global params
 $mysql_host     ="127.0.0.1";
 $mysql_username ="CloudEmoticon";
-$mysql_passwd   ="G5h6EXqNVMLxJtK4";
+$mysql_passwd   ="qNNQhBRGTCHh5Hxf";
 $mysql_datebase ="CloudEmoticon";
 //Mysql
 $link= mysqli_connect(

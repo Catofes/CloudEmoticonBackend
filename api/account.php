@@ -12,19 +12,20 @@ function Login($Link)
 	$Query=mysqli_prepare($Link,"select * from User where Username = ? And Password = ?");
 	mysqli_stmt_bind_param($Query,"ss",$Username,$Password);
 	mysqli_stmt_execute($Query);
-	$Result=mysqli_fetch_array(mysqli_stmt_get_result($stmt));
+	$Result=mysqli_fetch_array(mysqli_stmt_get_result($Query));
 
-	if($Result===FALSE)return 203;//Login Failed. Username or Password incorrect.
-	if($Result['level']===0)return 205;//Access Deny. Account was baned.
+	if($Result===NULL)return 203;//Login Failed. Username or Password incorrect.
+	if($Result['Level']===0)return 205;//Access Deny. Account was baned.
 
-	SessionSet($Link,$Result['Id']);
 	if($IfKeepLogin==='1'){
 		$AccessKey=AccessKeySet($Link,$Result);
 		if($AccessKey===FALSE)return 204;//SQL Error.
 		$_SESSION['AccessKey']=$AccessKey;
+		SessionSet($Link,$Result['Id']);
 		echo json_encode(Array('code'=>101,'UserId'=>$Result['Id'],'AccessKey'=>$AccessKey));
 		return 100;
 	}
+	SessionSet($Link,$Result['Id']);
 	return 101;
 }
 
@@ -32,7 +33,7 @@ function AccessKeySet($Link,$User)
 {
 	$Key=GenerateRandomCode(64);
 	$UserId=$User['Id'];
-	if(mysqli_query($link,"insert into AccessKey VALUES('$Key','$UserId',now());");)
+	if(mysqli_query($Link,"insert into AccessKey VALUES('$Key','$UserId',now(),'');"))
 		return $Key;
 	return FALSE;
 }
@@ -42,13 +43,12 @@ function Logout($Link)
 	if(IfLogin($Link)===FALSE)return 201;
 	if($_SESSION['AccessKey']){
 		$AccessKey=$_SESSION['AccessKey'];
-		mysqli_query($link,"update AccessKey set Expired=1 where Key='$AccessKey';");
+		mysqli_query($Link,"update AccessKey set `Expired`=1 where `Key`='$AccessKey';");
 	}
 	$_SESSION['Login']=FALSE;
 	session_unset();
 	session_destroy();
 	return 101;
-
 }
 
 if($_GET['f']==='login')
@@ -56,3 +56,4 @@ if($_GET['f']==='login')
 if($_GET['f']==='logout')
 	EchoErrorCode(Logout($link));
 
+?>

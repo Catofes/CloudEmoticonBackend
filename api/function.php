@@ -1,6 +1,7 @@
 <?php
 require("./config.php");
 session_start();
+date_default_timezone_set('Asia/Shanghai');
 
 function EchoErrorCode($code)
 {
@@ -27,29 +28,33 @@ function EchoErrorCode($code)
 
 function GenerateRandomCode($length)
 {
-	$Chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@';
+	$Chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	$Result='';
 	for($i=0; $i<$length; $i++)
 		$Result .= $Chars[mt_rand(0,strlen($Chars)-1)];
 	return $Result;	
 }
 
-function IfLogin($link)
+function IfLogin($Link)
 {
 	if($_SESSION['Login']===TRUE)return TRUE;
 	if($_POST['ak']){
-		$Query=mysqli_prepare($Link,"select * from AccessKey where Key=?");
+		$Query=mysqli_prepare($Link,"select * from `AccessKey` where `Key`=?");
 		mysqli_stmt_bind_param($Query,"s",$_POST['ak']);
 		mysqli_stmt_execute($Query);
-		$Result=mysqli_fetch_array(mysqli_stmt_get_result($stmt));
-		if($Result==FALSE)return FALSE;
+		$Result=mysqli_fetch_array(mysqli_stmt_get_result($Query));
+		if($Result===NULL)return FALSE;
+		if($Result['Expired']=='1')return FALSE;
+		$Key=$Result['Key'];
 		if(strtotime('-30 days')<strtotime($Result['GenerateTime'])){
-			SessionSet($link,$Result['UserId']);
-			$_SESSION['AccessKey']=$_Result['Key'];
+			SessionSet($Link,$Result['UserId']);
+			$_SESSION['AccessKey']=$Result['Key'];
 			return TRUE;
 		}
+		else
+			mysqli_query($Link,"update `AccessKey` set `expired`=1 where `Key`= '$Key';");
 	}
-	return FALSE
+	return FALSE;
 }
 
 function SessionSet($link,$UserId)
