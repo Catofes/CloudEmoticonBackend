@@ -1,5 +1,17 @@
 <?php
 require("./config.php");
+/***
+ 
+	function:
+			
+		EchoErrorCode($code)
+		GenerateRandomCode($length)
+		IfLogin($Link)
+		SessionSet($Link,$User
+
+ 
+***/
+
 session_start();
 date_default_timezone_set('Asia/Shanghai');
 
@@ -14,7 +26,11 @@ function EchoErrorCode($code)
 		'204'=>'SQL Error. We are sorry about that and please contact administrator to solve the issue.',
 		'205'=>'Access denied. Your account was baned.',	
 		'206'=>'Wrong Password.',
-		'207'=>'Please Input New Password',
+		'207'=>'Please Input Password.',
+		'208'=>'Username Illegal.',
+		'209'=>'Username existed.',
+		'210'=>'Email Address Illegal.',
+		'211'=>'Email Address Already Existed.',
 	);
 	$info_cn=Array(
 		'101'=>'请求完成。',
@@ -24,7 +40,11 @@ function EchoErrorCode($code)
 		'204'=>'数据库错误，请速与管理猿联系并且Pia!<(=ｏ ‵-′)ノ☆程序猿。',
 		'205'=>'拒绝登陆，您的帐号已经被禁用。',
 		'206'=>'密码错误。',
-		'207'=>'新密码不能为空。',
+		'207'=>'密码不能为空。',
+		'208'=>'用户名不合法。',
+		'209'=>'用户名已存在。',
+		'210'=>'邮箱地址不合法。',
+		'211'=>'邮箱地址已经注册。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
 	exit(0);
@@ -51,8 +71,7 @@ function IfLogin($Link)
 		if($Result['Expired']=='1')return FALSE;
 		$Key=$Result['Key'];
 		if(strtotime('-30 days')<strtotime($Result['GenerateTime'])){
-			SessionSet($Link,$Result['UserId']);
-			$_SESSION['AccessKey']=$Result['Key'];
+			SessionSet($Result['UserId'],$Result['Key']);
 			return TRUE;
 		}
 		else
@@ -61,10 +80,12 @@ function IfLogin($Link)
 	return FALSE;
 }
 
-function SessionSet($link,$UserId)
+function SessionSet($UserId,$AccessKey=0)
 {
 	$_SESSION['Login']=TRUE;
 	$_SESSION['UserId']=$UserId;
+	if($AccessKey!==0)
+		$_SESSION['AccessKey']=$AccessKey;
 }
 
 ?>
