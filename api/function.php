@@ -13,6 +13,8 @@ function EchoErrorCode($code)
 		'203'=>'Username or password incorrect.',
 		'204'=>'SQL Error. We are sorry about that and please contact administrator to solve the issue.',
 		'205'=>'Access denied. Your account was baned.',	
+		'206'=>'Wrong Password.',
+		'207'=>'Please Input New Password',
 	);
 	$info_cn=Array(
 		'101'=>'请求完成。',
@@ -21,6 +23,8 @@ function EchoErrorCode($code)
 		'203'=>'帐户名密码不正确。',
 		'204'=>'数据库错误，请速与管理猿联系并且Pia!<(=ｏ ‵-′)ノ☆程序猿。',
 		'205'=>'拒绝登陆，您的帐号已经被禁用。',
+		'206'=>'密码错误。',
+		'207'=>'新密码不能为空。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
 	exit(0);
