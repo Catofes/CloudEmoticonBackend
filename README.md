@@ -3,6 +3,8 @@ CloudEmotionPHP
 
 ##API
 
+###Define
+
 All returns will be json type. Enclude `code` and other info.They may have `info` and  `info_cn`  to show the code's meaning.
 
 Function name with `*` means you must login first. Args with `*` means the parameter is required.
@@ -21,6 +23,8 @@ Return Code Define:
 		'209'=>'Username existed.',
 		'210'=>'Email Address Illegal.',
 		'211'=>'Email Address Already Existed.',
+
+###Account Part
 
 Login Function:
 
