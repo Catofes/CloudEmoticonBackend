@@ -25,7 +25,7 @@ function Add($Link)
 
 switch($_GET['f'])
 {
-case 'a':
+case 'add':
 	EchoErrorCode(Add($link));
 default :
 	EchoErrorCode(404);
