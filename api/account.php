@@ -46,7 +46,7 @@ function AccessKeySet($Link,$User)//Generate AccessKey and store it in SQL
 {
 	$Key=GenerateRandomCode(64);
 	$UserId=$User['Id'];
-	if(mysqli_query($Link,"insert into AccessKey VALUES('$Key','$UserId',now(),'');"))
+	if(mysqli_query($Link,"insert into AccessKey VALUES('$Key','$UserId',now(6),'');"))
 		return $Key;
 	return FALSE;
 }
@@ -126,7 +126,7 @@ function Register($Link)
 	$Password=substr(SHA1($_POST['p']),0,32);
 	$Email=$_POST['e'];
 	//Insert Data
-	$Query=mysqli_prepare($Link,"insert into `User` VALUES('',?,?,?,now(),1);");
+	$Query=mysqli_prepare($Link,"insert into `User` VALUES('',?,?,?,now(6),1);");
 	mysqli_stmt_bind_param($Query,"sss",$Username,$Password,$Email);
 	mysqli_stmt_execute($Query);
 	//Query Data 
