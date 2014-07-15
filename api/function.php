@@ -31,6 +31,8 @@ function EchoErrorCode($code)
 		'209'=>'Username existed.',
 		'210'=>'Email Address Illegal.',
 		'211'=>'Email Address Already Existed.',
+		'212'=>'Data too long',	
+		'404'=>'Page Not Found.',
 	);
 	$info_cn=Array(
 		'101'=>'请求完成。',
@@ -45,6 +47,8 @@ function EchoErrorCode($code)
 		'209'=>'用户名已存在。',
 		'210'=>'邮箱地址不合法。',
 		'211'=>'邮箱地址已经注册。',
+		'212'=>'数据过长。',
+		'404'=>'请求不存在。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
 	exit(0);
