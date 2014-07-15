@@ -88,7 +88,7 @@ Register Function:
 Add Function: *
 	
 	URL:		./api/favor.php?f=add
-	Methro:		POST
+	Method:		POST
 	Args:		v:*		Value			(The main data, text, length<65535)	
 				a:		Addon			(The addon info, text, length<2^16-1)
 	Return:		code
@@ -97,4 +97,23 @@ Add Function: *
 				UserId					
 				CheckCode				(The CheckCode. 4 length char)
 
+GetListNum Function: *
 
+	URL:		./api/favor.php?f=getlistnum
+	Method:		POST
+	Return:		code
+				UserId
+				Num						(The count of favor list)
+
+GetList Function: *
+
+	URL:		./api/favor.php?f=getlist
+	Method:		POST
+	Agrs:		s:		StartPoint		(The first's record's position is 0.This number must equal or bigger than 0)
+				e:		EndPoint		(This number must bigger than StartPoint)
+	Return:		code
+				UserId
+				Num		countNum		(Records Number. This will not return if you set s&e)
+				StartPoint
+				EndPoint				(This two only return when you set s&e)
+				Result					(All Records Data. Each element is an object include record id, user id, value, iflove, addon, lastmodified and checkcode.)
