@@ -40,7 +40,7 @@ Login Function:
                 can be use for a month. You can post request with AccessKey so the server will automatic relogin
                 and set Session for you.
                 
-Logout Function:
+Logout Function: *
 
     URL:        ./api/account.php?f=logout
     Method:     POST (or GET)
@@ -48,7 +48,7 @@ Logout Function:
     Return:     code
     Others:     If session is timeout you must carry AccessKey to make the Long-Time-Login logout.
 
-ChangePassworde Function(Login required):
+ChangePassworde Function: *
 
 	URL:		./api/account.php?f=changepassword
 	Method:		POST
@@ -66,9 +66,9 @@ CheckUsername Function:
 
 CheckEmailAddress Function:
 
-	URL:		./api/account.php>f=checkemailaddress
+	URL:		./api/account.php?f=checkemailaddress
 	Method:		POST
-	Args:		e:*		EmailAddress	(required, Char, length<128)
+	Args:		e:*		EmailAddress	(Char, length<128)
 	Return:		code
 
 Register Function:
@@ -82,5 +82,19 @@ Register Function:
 				UserId
 				Username
 				EmailAddress
+
+###Favor Function
+
+Add Function: *
+	
+	URL:		./api/favor.php?f=add
+	Methro:		POST
+	Args:		v:*		Value			(The main data, text, length<65535)	
+				a:		Addon			(The addon info, text, length<2^16-1)
+	Return:		code
+				Id						(The Id of this record,int)
+				Value					(The Value you gived above)
+				UserId					
+				CheckCode				(The CheckCode. 4 length char)
 
 

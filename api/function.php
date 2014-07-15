@@ -14,6 +14,8 @@ require("./config.php");
 
 session_start();
 date_default_timezone_set('Asia/Shanghai');
+header('Content-type: text/json');
+
 
 function EchoErrorCode($code)
 {
@@ -31,7 +33,8 @@ function EchoErrorCode($code)
 		'209'=>'Username existed.',
 		'210'=>'Email Address Illegal.',
 		'211'=>'Email Address Already Existed.',
-		'212'=>'Data too long',	
+		'212'=>'Data too long.',	
+		'213'=>'Please input value.',
 		'404'=>'Page Not Found.',
 	);
 	$info_cn=Array(
@@ -48,6 +51,7 @@ function EchoErrorCode($code)
 		'210'=>'邮箱地址不合法。',
 		'211'=>'邮箱地址已经注册。',
 		'212'=>'数据过长。',
+		'213'=>'请输入数据。',
 		'404'=>'请求不存在。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
