@@ -92,10 +92,8 @@ Add Function: *
 	Args:		v:*		Value			(The main data, text, length<65535)	
 				a:		Addon			(The addon info, text, length<2^16-1)
 	Return:		code
-				Id						(The Id of this record,int)
-				Value					(The Value you gived above)
-				UserId					
-				CheckCode				(The CheckCode. 4 length char)
+				UserId
+				Result					(The Record Data. Include Id, UserId, Value, Addon, LastModified, CheckCode)
 
 GetListNum Function: *
 
@@ -117,3 +115,25 @@ GetList Function: *
 				StartPoint
 				EndPoint				(This two only return when you set s&e)
 				Result					(All Records Data. Each element is an object include record id, user id, value, iflove, addon, lastmodified and checkcode.)
+
+Get Function: *
+
+	URL:		./api/favor.php?f=get
+	Method:		POST
+	Args:		i:*		Record Id				
+	Return:		code
+				Result
+
+Modify Function: *
+
+	URL:		./api/favor.php?f=modify
+	Method:		POST
+	Args:		i:*		Record Id
+				v:*		Value
+				a:		Addon
+				l:		IfLove			(You can modify this to 0 to dislike it.)
+	Return:		code
+				Result
+
+
+

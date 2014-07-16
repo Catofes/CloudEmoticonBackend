@@ -35,6 +35,10 @@ function EchoErrorCode($code)
 		'211'=>'Email Address Already Existed.',
 		'212'=>'Data too long.',	
 		'213'=>'Please input value.',
+		'214'=>'Please input Id.',
+		'215'=>'Wrong input.',
+		'216'=>'Permission denied.',
+		'217'=>'No record.',
 		'404'=>'Page Not Found.',
 	);
 	$info_cn=Array(
@@ -52,6 +56,10 @@ function EchoErrorCode($code)
 		'211'=>'邮箱地址已经注册。',
 		'212'=>'数据过长。',
 		'213'=>'请输入数据。',
+		'214'=>'请输入编号。',
+		'215'=>'输入有误。',
+		'216'=>'权限有误。',
+		'217'=>'没有对应记录。',
 		'404'=>'请求不存在。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));

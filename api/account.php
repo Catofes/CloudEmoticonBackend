@@ -67,7 +67,7 @@ function Logout($Link)
 function ChangePassword($Link)
 {
 	if(IfLogin($Link)===FALSE)return 201;
-	if(!$_POST['np'])return 207;
+	if(!isset($_POST['np']))return 207;
 	
 	$UserId=$_SESSION['UserId'];
 	$OldPassword=substr(sha1($_POST['op']),0,32);
@@ -122,7 +122,7 @@ function Register($Link)
 	if(CheckEmailAddress($Link)!=101)return CheckEmailAddress($Link);
 	//Prepare
 	$Username=$_POST['u'];
-	if(!$_POST['p'])return 207;
+	if(!isset($_POST['p']))return 207;
 	$Password=substr(SHA1($_POST['p']),0,32);
 	$Email=$_POST['e'];
 	//Insert Data
