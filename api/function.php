@@ -42,6 +42,8 @@ function EchoErrorCode($code)
 		'218'=>'Device id is needed.',
 		'219'=>'Please input MainKey',
 		'220'=>'Wrong Device Id',
+		'301'=>'Yes.',
+		'302'=>'No.',
 		'404'=>'Page Not Found.',
 	);
 	$info_cn=Array(
@@ -66,6 +68,8 @@ function EchoErrorCode($code)
 		'218'=>'请输入设备Id。',
 		'219'=>'请输入值。',
 		'220'=>'设备编码错误。',
+		'301'=>'是。',
+		'302'=>'否。',
 		'404'=>'请求不存在。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));

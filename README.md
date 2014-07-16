@@ -68,6 +68,13 @@ ChangePassworde Function: *
 				ak:		AccessKey		
 	Return:		code
 
+CheckLogin Function:
+	
+	URL:		./api/account.php?f=checklogin
+	Method:		POST
+	Args:		ak:		AccessKey
+	Return:		code
+
 CheckUsername Function:
 
 	URL:		./api/account.php?f=checkusername
@@ -192,7 +199,7 @@ PullOk Function: *
 
 	URL:		./api/device.php?f=pullok
 	Method:		POST
-	Args:		d:*
+	Args:		d:*		DeviceCode
 				t:*						(This time will store and replace this device's lastsync time.)
 	Return:		code
 
@@ -204,4 +211,50 @@ Check Funtion: *
 				CheckCode				(This Code equals combine all your record's checkcode and sha1 it.)
 				
 
+####使用说明
 
+这里大概的介绍一下如何使用。
+
+所有的返回数据格式都为json，所有的时间的格式返回格式都精确到微秒，为形如`2014-07-16 22:12:54.424814`的字符串。
+
+首先account.php 部分是有关帐号的。包括`Login Logout ChangePassword CheckUsername CheckEmailAddress Register `这些函数。需要说明的是注册和改密码的API不会检测你的密码强度。这一点应该由客户端来完成。密码传输过程为明文，这一点可以靠使用HTTPS解决。
+
+然后favor.php 部分是有关收藏的。其实这里设计是可以储存任何数据的。 包括`Add GetListNum GetList Get Modify` 五个函数。分别是增加记录，获取记录数目，获取部分记录，获取一个记录，修改记录。一条记录会包涵以下部分： 记录的ID，记录所属用户的ID，记录的值(65535个字符以内)，记录的附加值(2^24-1字符以内)，记录的属性值（名字叫做IfLove，设计时想法是区分是否收藏），记录最后的修改时间，以及记录的校验码（4个char字符）。记录只可增加，不可删除，但是可以通过修改属性值来更改其具体的意义。比方说可以定义当属性值为0的时候这条记录就是无效记录，当属性值为2的时候此记录记录的是程序设置参数等。
+
+最后devive.php 部分是有关于同步的。有`GenerateDeviceId Now UpdateMainKey Pull GetDeviceInfo Pull PullOk Check`这些函数。其储存信息包涵设备识别码，设备所属用户，设备最后同步时间和设备的主要属性（MainKey，一个Int，完全可以自定义，设计时考虑的是指向Favor中的一个具体记录用于储存设备的设置信息等等）。具体的使用方法在下面介绍。
+
+####同步说明：
+
+对于一个程序，他的同步部分应该遵循下述步骤。
+
+第一次同步：
+
+1. 检查登录状态，未登录则进行登录操作。
+2. 使用GenerateDeviceId函数获取设备识别码。为64位char字符串。以下的所有操作都需要提交此识别码。
+3. 使用Pull函数获取所有记录。这时候应该记录获取记录的时间（即Result中的Now），假设为T。
+4. 与本地的数据进行合并，并处理争议，并整理出需要提交给服务器的修改。
+5. 使用Add和Modify函数对服务器的记录进行修改。此时需要提交获取记录的时间T。
+6. 使用PullOk告诉服务器同步完成，此时也需提交获取记录的时间T。
+
+增量同步：
+
+1. 检查登录状态并登陆。
+2. 使用Pull函数获取自上回同步之后有过修改的记录。提交设备识别码，并储存返回的时间T。
+3. 数据合并，处理争议，整理出需要的更改。
+4. 使用Add和Modify函数提交更改，同样的需要同时提交时间T。
+5. 使用PullOk告诉服务器同步完成，同上。
+
+程序可以对同步的数据进行校验。使用Check函数，服务器会获取用户的所有记录，然后将所有记录的CheckCode按照记录Id增序连接为一个字符串。返回此字符串的SHA1值。客户端可以以此进行校验。不过不建议频繁的使用此操作。
+
+####CloudEmoticion 项目如何使用此程序
+
+可以说这个服务器是一个通用的记录，同步服务器。所以具体的数据格式需要 我们的ლ(K◡Tლ)进行定义。
+
+我在此做出以下定义：
+
+1. Device的MainKey值为Favor表中的一条属于该用户的记录的ID。
+2. 记录的IfLove值 有以下意义： 
+	
+	0: 用户取消了对此眼文字的收藏
+	1: 用户收藏了此眼文字
+	2: 此条记录为Android应用的设置值。

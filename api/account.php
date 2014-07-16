@@ -139,9 +139,16 @@ function Register($Link)
 	return 100;
 }
 
+function CheckLogin($Link)
+{
+	if(IfLogin($Link)===TRUE)return 301;
+	return 302;
+}
 
 if($_GET['f']==='login')
-	EchoErrorCode(Login($link));	
+	EchoErrorCode(Login($link));
+if($_GET['f']==='checklogin')
+	EchoErrorCode(CheckLogin($link));
 if($_GET['f']==='logout')
 	EchoErrorCode(Logout($link));
 if($_GET['f']==='changepassword')
