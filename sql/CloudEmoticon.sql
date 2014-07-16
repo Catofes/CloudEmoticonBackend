@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 15, 2014 at 01:30 PM
+-- Generation Time: Jul 16, 2014 at 03:44 PM
 -- Server version: 5.5.37-MariaDB-log
 -- PHP Version: 5.5.14
 
@@ -31,9 +31,7 @@ CREATE TABLE IF NOT EXISTS `AccessKey` (
   `UserId` int(11) NOT NULL,
   `GenerateTime` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Expired` int(4) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Key`),
-  UNIQUE KEY `Key_2` (`Key`),
-  KEY `Key` (`Key`)
+  PRIMARY KEY (`Key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -42,10 +40,33 @@ CREATE TABLE IF NOT EXISTS `AccessKey` (
 
 INSERT INTO `AccessKey` (`Key`, `UserId`, `GenerateTime`, `Expired`) VALUES
 ('8YYB8bZwkALoknzBPMmmyXFyo7laX3zkqrDCKd3e40Nyql3nlUkBy4GpZgnOMYyS', 1, '2014-07-11 11:32:30.000000', 1),
+('Cs2s9gYF5fi0SFV7jmpIZxAZSeSWJVkaErAQMkKO8lyKZS4QAjggJISiBDM7NH3E', 1, '2014-07-16 13:12:47.998877', 1),
 ('Grn6beabZyo3y3veUjCuDJB1YmWUsPRp189qk0f7Z1saFJb0LgFtTDcGqkz9DYmP', 1, '2014-05-11 07:18:49.663471', 1),
+('HJ5MEoHKmF8gqawi3eZucvGo2No2glutopX9y1HQcHUMII1vfKyvCyUXMiubegak', 1, '2014-07-16 13:13:53.717511', 0),
 ('l16a4GH9nE9lFUugucfSUJK6GMBomtsiy6ZBumItVIP1NbUlPw8b7H66ooCD4AJj', 1, '2014-07-11 16:55:41.000000', 1),
 ('qVUkFcbhAhuyBJO2elaInCKRCXtnr0n7QXqdjJiB3Vl91odruLZ2UdXSSStBAx2i', 1, '2014-07-11 16:56:10.000000', 1),
 ('Sul6D67qbADlq5gz1BjFcVBowF7mGxEfDK4tjvKhrRMuUcdpzlHg0rmwoAyfht5p', 1, '2014-07-11 16:57:09.000000', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Device`
+--
+
+CREATE TABLE IF NOT EXISTS `Device` (
+  `DeviceId` char(64) NOT NULL,
+  `UserId` int(11) NOT NULL,
+  `LastSync` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `MainKey` int(11) NOT NULL,
+  PRIMARY KEY (`DeviceId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `Device`
+--
+
+INSERT INTO `Device` (`DeviceId`, `UserId`, `LastSync`, `MainKey`) VALUES
+('nPhmUJQ9P85CVGe1RXq2CrkREsenast41Mm475kI27coBPF8wUczAV9uy6wWmnVP', 1, '2014-07-16 14:12:54.424814', 0);
 
 -- --------------------------------------------------------
 
@@ -57,52 +78,67 @@ CREATE TABLE IF NOT EXISTS `Favor` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `UserId` int(11) NOT NULL,
   `Value` text NOT NULL,
-  `IfLove` tinyint(4) NOT NULL DEFAULT '1',
+  `IfLove` int(11) NOT NULL DEFAULT '1',
   `AddOn` mediumtext NOT NULL,
   `LastModified` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `CheckCode` varchar(4) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=35 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=39 ;
 
 --
 -- Dumping data for table `Favor`
 --
 
 INSERT INTO `Favor` (`Id`, `UserId`, `Value`, `IfLove`, `AddOn`, `LastModified`, `CheckCode`) VALUES
-(1, 1, 'sadceww', 0, 'sdafeww', '2014-07-15 13:18:03.204867', 'QRs8'),
-(2, 1, 'sadceww', 0, 'sdafeww', '2014-07-15 13:18:54.845229', 'pcK4'),
-(3, 1, 'sadceww:s', 0, 'sdafeww', '2014-07-15 13:18:59.987506', 'RYYw'),
-(4, 1, 'sadceww:s@#$%你好）——×&），xzcvm“～‘" ''', 0, 'sdafeww', '2014-07-15 13:19:22.160385', 'I96t'),
-(5, 1, 'sadceww:s@#$%你好）——×&），xzcvm“～‘" ''', 0, 'sdafeww', '2014-07-15 13:20:03.761519', 'KCtN'),
-(6, 1, 'sadceww:s@#$%你好 \\n ）——×&），xzcvm“～‘" ''', 0, 'sdafeww', '2014-07-15 13:20:09.508338', '9Ymg'),
-(7, 1, 'sadceww:s@#$%你好\r\n\r\n \\n ）——×&），xzcvm“～‘" ''', 0, 'sdf', '2014-07-15 13:21:24.468993', 'gbAf'),
-(8, 1, 'sadceww:s@#$%你好  ）——×&），xzcvm“～‘" ''', 0, 'sdf', '2014-07-15 13:20:55.731134', 'Bsva'),
-(9, 1, 'sadceww:s@#$%你好 \\r\\n ）——×&），xzcvm“～‘" ''', 0, 'sdf', '2014-07-15 13:21:58.637392', '0bso'),
-(10, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 0, 'sdf', '2014-07-15 13:22:10.405660', 'ET7e'),
-(11, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''sdfa', 0, 'sdafeww', '2014-07-15 13:22:24.775287', '8Ed6'),
-(12, 1, 'sfda', 0, '', '2014-07-15 13:24:25.422417', '2gvF'),
-(13, 1, 'sfdaAA]]-)_(', 0, '', '2014-07-15 13:24:43.541170', 'zGx6'),
-(14, 1, 'sadceww', 1, 'sdafeww', '2014-07-15 13:27:14.307870', 'uGHM'),
-(15, 1, 'sadcewwsdfaf34545y745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:27:27.218725', 'PVPn'),
-(16, 1, 'sadcewwsdfaf34545y \\n 745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:27:45.703783', 'Lltg'),
-(17, 1, 'sadcewwsdfaf34545y  745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:27:57.456362', 'ujWx'),
-(18, 1, 'sadcewwsdfaf34545y  745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:27:59.727145', '92bF'),
-(19, 1, 'sadcewwsdfaf34545y  745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:28:01.751402', '0JaV'),
-(20, 1, 'sadcewwsdfaf34545y  745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:28:02.772988', 'AKRy'),
-(21, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:28:17.786779', 'BJPz'),
-(22, 1, 'sadcewwsdfaf34545y  745y 地方v第三方'';,../0123780.s,c$%^&*()@#^&%!^', 1, 'sdafeww', '2014-07-15 13:28:22.626874', 'A8OO'),
-(23, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:28:24.449222', 'qJi4'),
-(24, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:28:42.543818', 'j3jZ'),
-(25, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:03.351514', 'Syzc'),
-(26, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:11.120885', 'tdet'),
-(27, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:11.782379', 'i7Zt'),
-(28, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:12.287623', '755k'),
-(29, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:12.717917', 'I2oy'),
-(30, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:12.918970', 'qfUF'),
-(31, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:13.062007', 'vFtk'),
-(32, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:13.245533', 'jr1m'),
-(33, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:13.413342', 'WIk3'),
-(34, 1, 'sadceww:s@#$%你好 \\r\\n <br> ）——×&），xzcvm“～‘" ''', 1, 'sdf', '2014-07-15 13:30:13.597147', 'uxNt');
+(1, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(2, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(3, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(4, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(5, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(6, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(7, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(8, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(9, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(10, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(11, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(12, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(13, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(14, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(15, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(16, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(17, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(18, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(19, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(20, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(21, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(22, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(23, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(24, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(25, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(26, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(27, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(28, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(29, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(30, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(31, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(32, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(33, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(34, 1, '223', 1, '433', '2014-07-16 10:58:06.904583', 'E5L2'),
+(35, 1, '223erws', 1, '433', '2014-07-16 12:02:58.260074', 'eI0Q'),
+(36, 2, '223erws', 1, '433', '2014-07-16 12:02:58.260074', 'dHRA'),
+(37, 1, 'sadceww', 1, 'sdafewwds', '2014-07-16 13:15:18.647206', 'Xmtp'),
+(38, 1, 'sadcewwewr', 1, 'sdafewwds', '2014-07-16 13:15:24.529607', 'ndJl');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Log`
+--
+
+CREATE TABLE IF NOT EXISTS `Log` (
+  `Time` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Log` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -126,8 +162,8 @@ CREATE TABLE IF NOT EXISTS `User` (
 
 INSERT INTO `User` (`Id`, `Username`, `Password`, `EmailAddress`, `RegistDate`, `Level`) VALUES
 (1, 'test', 'b444ac06613fc8d63795be9ad0beaf55', 'test@catofes.com', '0000-00-00 00:00:00.000000', 1),
-(2, 'ppp', 'b3054ff0797ff0b2bbce03ec897fe63e', 'pp@catofes.com', '2014-07-11 16:37:13.000000', 0),
-(3, 'pppp', 'c3ae457bb31ea0b0df811cf615e81cb4', 'pppp@catofes.com', '2014-07-11 16:41:55.000000', 0),
+(2, 'ppp', 'b3054ff0797ff0b2bbce03ec897fe63e', 'pp@catofes.com', '2014-07-11 16:37:13.000000', 1),
+(3, 'pppp', 'c3ae457bb31ea0b0df811cf615e81cb4', 'pppp@catofes.com', '2014-07-11 16:41:55.000000', 1),
 (4, 'pppsdfa', '177f2d4a88f96bd793a2fd133cb7e009', 'pps@catofes.com', '2014-07-11 17:17:45.000000', 1);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
