@@ -39,6 +39,9 @@ function EchoErrorCode($code)
 		'215'=>'Wrong input.',
 		'216'=>'Permission denied.',
 		'217'=>'No record.',
+		'218'=>'Device id is needed.',
+		'219'=>'Please input MainKey',
+		'220'=>'Wrong Device Id',
 		'404'=>'Page Not Found.',
 	);
 	$info_cn=Array(
@@ -60,6 +63,9 @@ function EchoErrorCode($code)
 		'215'=>'输入有误。',
 		'216'=>'权限有误。',
 		'217'=>'没有对应记录。',
+		'218'=>'请输入设备Id。',
+		'219'=>'请输入值。',
+		'220'=>'设备编码错误。',
 		'404'=>'请求不存在。',
 	);
 	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));

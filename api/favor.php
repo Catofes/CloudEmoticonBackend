@@ -10,8 +10,13 @@ function Add($Link)
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
 	//Insert
-	$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,1,?,now(6),?);");
-	mysqli_stmt_bind_param($Query,"isss",$UserId,$Value,$AddOn,$CheckCode);
+	if(isset($_POST['t'])){
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,1,?,?,?);");
+		mysqli_stmt_bind_param($Query,"issss",$UserId,$Value,$AddOn,$_POST['t'],$CheckCode);
+	}else{
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,1,?,now(6),?);");
+		mysqli_stmt_bind_param($Query,"isss",$UserId,$Value,$AddOn,$CheckCode);
+	}
 	mysqli_stmt_execute($Query);
 	//Query
 	$Query=mysqli_prepare($Link,"select * from `Favor` where `Value`=? and `UserId`=? and `CheckCode`=?;");
@@ -35,8 +40,8 @@ function GetListNum($Link)
 function GetList($Link)
 {
 	$limit=0;
-	if($_POST['s']){
-		if($_POST['e']){
+	if(isset($_POST['s'])){
+		if(isset($_POST['e'])){
 			$StartPoint=intval($_POST['s']);
 			$EndPoint=intval($_POST['e']);
 			if(($StartPoint>=0)&&($EndPoint>=$StartPoint)){
@@ -53,10 +58,7 @@ function GetList($Link)
 		return 100;
 	}
 	if($limit===1){
-		$Query=mysqli_prepare($Link,"select * from `Favor` where `UserId`=? limit ?,?;");
-		mysqli_stmt_bind_param($Query,"iii",$UserId,$StartPoint,$QueryLength);
-		mysqli_stmt_execute($Query);
-		$Result=mysqli_fetch_all(mysqli_stmt_get_result($Query),MYSQLI_ASSOC);
+		$Result=mysqli_fetch_all(mysqli_query($Link,"select * from `Favor` where `UserId`='$UserId' limit $StartPoint,$QueryLength;"),MYSQLI_ASSOC);
 		if($Result===null)return 204;
 		echo json_encode(Array('code'=>101,'UserId'=>$UserId,'StartPoint'=>$StartPoint,'EndPoint'=>$EndPoint,'Result'=>$Result));
 		return 100;
@@ -90,11 +92,14 @@ function Modify($Link)
 	$IfLove=(!isset($_POST['l']))?$Result['IfLove']:$_POST['l'];
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
-
-	$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=now(6);");
-	mysqli_stmt_bind_param($Query,"ssis",$Value,$AddOn,$IfLove,$CheckCode);
+	if(isset($_POST['t'])){
+		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=? where `Id` = ?;");
+		mysqli_stmt_bind_param($Query,"ssissi",$Value,$AddOn,$IfLove,$CheckCode,$_POST['t'],$Id);
+	}else{
+		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=now(6) where `Id` = ?;");
+		mysqli_stmt_bind_param($Query,"ssisi",$Value,$AddOn,$IfLove,$CheckCode,$Id);
+	}
 	mysqli_stmt_execute($Query);
-
 	$Result=mysqli_fetch_array(mysqli_query($Link,"select * from `Favor` where `Id`='$Id';"),MYSQLI_ASSOC);
 	if($Result===null)return 204;
 	if(count($Result)===0)return 204;
