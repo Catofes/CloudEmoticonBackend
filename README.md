@@ -1,4 +1,4 @@
-CloudEmotionPHP
+CloudEmoticonPHP
 ===============
 
 ##API
