@@ -76,9 +76,33 @@ function PullOk($Link)
 function Check($Link)
 {
 	$UserId=$_SESSION['UserId'];
+	if(isset($_POST['t'])){
+		$Query=mysqli_prepare($Link,"select group_concat(CheckCode SEPARATOR \"\") `CheckCode`  FROM  `Favor` where `UserId` = '$UserId' and `LastModified` < ?;");
+		mysqli_stmt_bind_param($Query,"s",$_POST['t']);
+		mysqli_stmt_execute($Query);
+		$Result=mysqli_fetch_array(mysqli_stmt_get_result($Query));
+		echo json_encode(Array('code'=>101,'CheckCode'=>SHA1($Result[0])));
+		return 100;
+	}
 	$Result=mysqli_fetch_array(mysqli_query($Link,"select group_concat(CheckCode SEPARATOR \"\") `CheckCode`  FROM  `Favor` where `UserId` = '$UserId';"));
 	echo json_encode(Array('code'=>101,'CheckCode'=>SHA1($Result[0])));
 	return 100;
+}
+
+function CheckList($Link)
+{
+    $UserId=$_SESSION['UserId'];
+    if(isset($_POST['t'])){
+        $Query=mysqli_prepare($Link,"select `Id`,`CheckCode`  FROM  `Favor` where `UserId` = '$UserId' and `LastModified` < ?;");
+        mysqli_stmt_bind_param($Query,"s",$_POST['t']);
+        mysqli_stmt_execute($Query);
+        $Result=mysqli_fetch_all(mysqli_stmt_get_result($Query),MYSQLI_ASSOC);
+        echo json_encode(Array('code'=>101,'Result'=>$Result));
+        return 100;
+    }
+    $Result=mysqli_fetch_all(mysqli_query($Link,"select `Id`,`CheckCode`  FROM  `Favor` where `UserId` = '$UserId';"),MYSQLI_ASSOC);
+    echo json_encode(Array('code'=>101,'CheckCode'=>$Result));
+    return 100;
 }
 
 if(IfLogin($link)===FALSE)
@@ -106,6 +130,9 @@ case 'pullok':
 	break;
 case 'check':
 	EchoErrorCode(Check($link));
+	break;
+case 'checklist':
+	EchoErrorCode(CheckList($link));
 	break;
 default :
 	EchoErrorCode(404);

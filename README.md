@@ -207,9 +207,17 @@ Check Funtion: *
 
 	URL:		./api/device.php?f=check
 	Method:		POST
+	Args:		t:					
 	Return:		code
-				CheckCode				(This Code equals combine all your record's checkcode and sha1 it.)
+				CheckCode				(This Code equals combine your records' checkcode (All Or before time t) and sha1 it.)
 				
+CheckList Function: *
+
+	URL:		./api/device.php?f=checklist
+	Method:		POST
+	Args:		t:
+	Return:		code
+				Result					(This will return all(or before time t) your records' id and checkcode.)
 
 ####使用说明
 
