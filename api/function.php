@@ -15,7 +15,7 @@ require("./config.php");
 session_start();
 date_default_timezone_set('Asia/Shanghai');
 header('Content-type: text/json');
-
+header('Access-Control-Allow-Origin: *');  
 
 function EchoErrorCode($code)
 {
