@@ -1,4 +1,4 @@
-CloudEmotionPHP
+CloudEmoticonPHP
 ===============
 
 ##API
@@ -341,7 +341,7 @@ CheckList Function: *
 	设备A于 00：02 本地处理完，并增加两条记录。发送PullOk请求。
 	设备B于 00：03 本地处理完。发送PullOk请求。
 
-这时候会出现 设备B不能得到设备A新增加或者修改的记录。所以客户端应该考虑不定期的校验数据库。
+这时候会出现 设备B不能得到设备A新增加或者修改的记录。所以客户端应该考虑使用Check和CheckList不定期的校验数据库.
 
 
 
