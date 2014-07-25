@@ -60,7 +60,6 @@ function Logout($Link)
 	}
 	$_SESSION['Login']=FALSE;
 	session_unset();
-	session_destroy();
 	return 101;
 }
 

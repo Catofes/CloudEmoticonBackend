@@ -7,15 +7,16 @@ function Add($Link)
 	$Value=$_POST['v'];
 	$AddOn=(!isset($_POST['a']))?'':$_POST['a'];
 	$UserId=$_SESSION['UserId'];
+	$IfLove=(!isset($_POST['i']))?1:$_POST['i'];
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
 	//Insert
 	if(isset($_POST['t'])){
-		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,1,?,?,?);");
-		mysqli_stmt_bind_param($Query,"issss",$UserId,$Value,$AddOn,$_POST['t'],$CheckCode);
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,?,?);");
+		mysqli_stmt_bind_param($Query,"isisss",$UserId,$Value,$IfLove,$AddOn,$_POST['t'],$CheckCode);
 	}else{
-		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,1,?,now(6),?);");
-		mysqli_stmt_bind_param($Query,"isss",$UserId,$Value,$AddOn,$CheckCode);
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,now(6),?);");
+		mysqli_stmt_bind_param($Query,"isiss",$UserId,$Value,$IfLove,$AddOn,$CheckCode);
 	}
 	mysqli_stmt_execute($Query);
 	//Query
