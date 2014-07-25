@@ -110,7 +110,7 @@ Add Function: *
 	Args:		v:*		Value			(The main data, text, length<65535.)	
 				a:		Addon			(The addon info, text, length<2^16-1.)
 				t:		LastModified	(The Time you add this record.)
-				i:		IfLove			(Int.)
+				l:		IfLove			(Int.)
 	Return:		code
 				UserId
 				Result					(The Record Data. Include Id, UserId, Value, Addon, LastModified, CheckCode.)

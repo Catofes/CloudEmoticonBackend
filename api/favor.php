@@ -7,7 +7,7 @@ function Add($Link)
 	$Value=$_POST['v'];
 	$AddOn=(!isset($_POST['a']))?'':$_POST['a'];
 	$UserId=$_SESSION['UserId'];
-	$IfLove=(!isset($_POST['i']))?1:$_POST['i'];
+	$IfLove=(!isset($_POST['l']))?1:$_POST['l'];
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
 	//Insert
