@@ -23,7 +23,11 @@ function Add($Link)
 	$Query=mysqli_prepare($Link,"select * from `Favor` where `Value`=? and `UserId`=? and `CheckCode`=?;");
 	mysqli_stmt_bind_param($Query,"sis",$Value,$UserId,$CheckCode);
 	mysqli_stmt_execute($Query);
-	$Result=mysqli_fetch_array(mysqli_stmt_get_result($Query),MYSQLI_ASSOC);
+	if(isset($_POST['t'])){
+		$Query=mysqli_prepare($Link,"update `Device` set `LastSync`=? where `UserId` = ? and `LastSync` > ?;");
+		mysqli_stmt_bind_param($Query,"sis",$_POST['t'],$_SESSION['UserId'],$_POST['t']);
+	}
+	mysqli_stmt_execute($Query);$Result=mysqli_fetch_array(mysqli_stmt_get_result($Query),MYSQLI_ASSOC);
 	if($Result===null)return 204;//Insert Error
 	echo json_encode(Array('code'=>101,'UserId'=>$UserId,'Result'=>$Result));
 	return 100;
@@ -99,6 +103,11 @@ function Modify($Link)
 	}else{
 		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=now(6) where `Id` = ?;");
 		mysqli_stmt_bind_param($Query,"ssisi",$Value,$AddOn,$IfLove,$CheckCode,$Id);
+	}
+	mysqli_stmt_execute($Query);
+	if(isset($_POST['t'])){
+		$Query=mysqli_prepare($Link,"update `Device` set `LastSync`=? where `UserId` = ? and `LastSync` > ?;");
+		mysqli_stmt_bind_param($Query,"sis",$_POST['t'],$_SESSION['UserId'],$_POST['t']);
 	}
 	mysqli_stmt_execute($Query);
 	$Result=mysqli_fetch_array(mysqli_query($Link,"select * from `Favor` where `Id`='$Id';"),MYSQLI_ASSOC);
