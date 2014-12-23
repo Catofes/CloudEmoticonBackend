@@ -4,14 +4,16 @@ require("./function.php");
 function GET($Link)
 {
 	if(!isset($_POST['v']))return 213;
+	if(!isset($_POST['i']))return 213;
 	$Value	=	$_POST['v'];
-	$Query=mysqli_prepare($Link,"select * from `Favor` where Value = ?;");
-	mysqli_stmt_bind_param($Query,"s",$Value);
+	$UserId	=	$_POST['i'];
+	$Query=mysqli_prepare($Link,"select * from `Favor` where Value = ? and UserId=?;");
+	mysqli_stmt_bind_param($Query,"si",$Value,$UserId);
 	mysqli_stmt_execute($Query);
 	$Result	=	mysqli_fetch_array(mysqli_stmt_get_result($Query),MYSQLI_ASSOC);
 	if($Result===null) return 404;
-	if($Result['AddOn']==0) return 404;
-	$Result=mysqli_fetch_array(mysqli_query($Link,"select * from `Favor` where `AddOn`='$Value';"),MYSQLI_ASSOC);
+	if($Result['AddOn']!=='True') return 404;
+	$Result=mysqli_fetch_array(mysqli_query($Link,"select * from `Favor` where `AddOn`='$Value' and `UserId`='$UserId';"),MYSQLI_ASSOC);
 	return $Result;
 }
 
