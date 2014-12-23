@@ -6,17 +6,18 @@ function Add($Link)
 	if(!isset($_POST['v']))return 213;
 	$Value=$_POST['v'];
 	$AddOn=(!isset($_POST['a']))?'':$_POST['a'];
+	$Group=(!isset($_POST['g']))?'':$_POST['g'];
 	$UserId=$_SESSION['UserId'];
 	$IfLove=(!isset($_POST['l']))?1:$_POST['l'];
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
 	//Insert
 	if(isset($_POST['t'])){
-		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,?,?);");
-		mysqli_stmt_bind_param($Query,"isisss",$UserId,$Value,$IfLove,$AddOn,$_POST['t'],$CheckCode);
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,?,?,?);");
+		mysqli_stmt_bind_param($Query,"isissss",$UserId,$Value,$IfLove,$AddOn,$Group,$_POST['t'],$CheckCode);
 	}else{
-		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,now(6),?);");
-		mysqli_stmt_bind_param($Query,"isiss",$UserId,$Value,$IfLove,$AddOn,$CheckCode);
+		$Query=mysqli_prepare($Link,"insert into `Favor` values ('',?,?,?,?,?,now(6),?);");
+		mysqli_stmt_bind_param($Query,"isiss",$UserId,$Value,$IfLove,$AddOn,$Group,$CheckCode);
 	}
 	mysqli_stmt_execute($Query);
 	//Query
@@ -94,15 +95,16 @@ function Modify($Link)
 	$Value=$_POST['v'];
 	if(!isset($_POST['v']))return 213;
 	$AddOn=(!isset($_POST['a']))?$Result['AddOn']:$_POST['a'];
+	$Group=(!isset($_POST['g']))?$Result['Group']:$_POST['g'];
 	$IfLove=(!isset($_POST['l']))?$Result['IfLove']:$_POST['l'];
 	$CheckCode=GenerateRandomCode(4);
 	if(strlen($Value)>65535)return 212;
 	if(isset($_POST['t'])){
-		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=? where `Id` = ?;");
-		mysqli_stmt_bind_param($Query,"ssissi",$Value,$AddOn,$IfLove,$CheckCode,$_POST['t'],$Id);
+		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`Group`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=? where `Id` = ?;");
+		mysqli_stmt_bind_param($Query,"sssissi",$Value,$AddOn,$Group,$IfLove,$CheckCode,$_POST['t'],$Id);
 	}else{
-		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=now(6) where `Id` = ?;");
-		mysqli_stmt_bind_param($Query,"ssisi",$Value,$AddOn,$IfLove,$CheckCode,$Id);
+		$Query=mysqli_prepare($Link,"update `Favor` set `Value`=? ,`AddOn`=? `Group`=? ,`IfLove`=? ,`CheckCode`=?, `LastModified`=now(6) where `Id` = ?;");
+		mysqli_stmt_bind_param($Query,"sssisi",$Value,$AddOn,$Group,$IfLove,$CheckCode,$Id);
 	}
 	mysqli_stmt_execute($Query);
 	if(isset($_POST['t'])){
