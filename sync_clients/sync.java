@@ -1,4 +1,3 @@
-package com.example.herbertqiao.cloudemoticon;
 import java.util.*;
 /**
  * Created by herbertqiao on 12/23/14.
@@ -127,7 +126,7 @@ public class Sync
 
     private int onLogin()
     {
-        if (value.username == "") {
+        if (value.username.equals("")) {
             setError(201);
             return -1;
         }
@@ -169,7 +168,7 @@ public class Sync
     public int pull()
     {
         onLoad();
-        if(this.value.login==false){
+        if(!this.value.login){
             return -1;
         }
         $.post(this.url+"/api/device.php?f=now",{ "ak" : value.accesskey }
@@ -290,7 +289,7 @@ public class Sync
 
     private int pushok()
     {
-        if(value.login == false)
+        if(!value.login)
             return -1;
         $.post(this.url+"/api/device.php?f=pullok",{"ak":value.accesskey, 'd' : value.deviceid , 't' : value.pullrequesttime});
         {

@@ -1,53 +1,55 @@
-CloudEmoticonPHP
+CloudEmoticonBackend
 ===============
 
 ##API
 
-###Define
+###Definitions
 
-All returns will be json type. Enclude `code` and other info.They may have `info` and  `info_cn`  to show the code's meaning.
+All responses will be JSON. They include `code` and other information. They may have `info` and `info_cn` to show what `code` means.
 
-Function name with `*` means you must login first. Args with `*` means the parameter is required.
+Functions with `*` mean you must login first.
 
-Return Code Define:
+Arguments with `*` mean the arguments are required.
+
+`code` Definitions:
 
 		'101'=>'OK.',
 		'201'=>'Please login.',
-		'202'=>'Already login. Please logout first.',
+		'202'=>'Already logged in. Please logout first.',
 		'203'=>'Username or password incorrect.',
-		'204'=>'SQL Error. We are sorry about that and please contact administrator to solve the issue.',
-		'205'=>'Access denied. Your account was baned.',	
-		'206'=>'Wrong Password.',
-		'207'=>'Please Input Password.',
-		'208'=>'Username Illegal.',
-		'209'=>'Username existed.',
-		'210'=>'Email Address Illegal.',
-		'211'=>'Email Address Already Existed.',
+		'204'=>'SQL Error. We are sorry about that. Please contact administrator to solve the issue.',
+		'205'=>'Access denied. Your account was banned.',	
+		'206'=>'Wrong password.',
+		'207'=>'Please input password.',
+		'208'=>'Username illegal.',
+		'209'=>'Username exists.',
+		'210'=>'Email address illegal.',
+		'211'=>'Email address existes.',
 		'212'=>'Data too long.',	
 		'213'=>'Please input value.',
-		'214'=>'Please input Id.',
+		'214'=>'Please input id.',
 		'215'=>'Wrong input.',
 		'216'=>'Permission denied.',
 		'217'=>'No record.',
 		'218'=>'Device id is needed.',
 		'219'=>'Please input MainKey',
-		'220'=>'Wrong Device Id',
-		'404'=>'Page Not Found.',
+		'220'=>'Wrong device id',
+		'404'=>'Page not found.',
 
 
-###Account Part
+###Account
 
 Login Function:
 
     URL:        ./api/account.php?f=login
     Method:     POST
-    Args:       u:*		Username        (Char, length < 32. )
-                p:*		Password        (Char. Server will do substr(SHA1(Password),0,32). )
-                k:      KeepLogin       (1 for on. Server will return an AccessKey if it is on. )
-    Return:     code  
+    Arguments:  u:*		Username        (string, length<32)
+                p:*		Password        (string. Server will do substr(SHA1(Password),0,32))
+                k:      KeepLogin       (1 for on. Server will return an AccessKey if it is on) // TODO: change to true/false?
+    Response:   code  
 				UserId					
-                AccessKey               (return when KeepLogin is On. A 64-long Char.)
-    Others:     Server use Session and AccessKey to keep login. Session livetime depends on PHP settings. AccessKey 
+                AccessKey               (included when KeepLogin is On. A 64 character-long string)
+    Description:     Server use Session and AccessKey to keep login. Session livetime depends on PHP settings. AccessKey 
                 can be use for a month. You can post request with AccessKey so the server will automatic relogin
                 and set Session for you.
                 
@@ -55,176 +57,176 @@ Logout Function: *
 
     URL:        ./api/account.php?f=logout
     Method:     POST or GET
-    Args:       ak:     AccessKey       
-    Return:     code
-    Others:     If session is timeout you must carry AccessKey to make the Long-Time-Login logout.
+    Arguments:  ak:     AccessKey       
+    Response:   code
+    Description:     If session is timed out you must carry AccessKey to make the Long-Time-Login logout.
 
 ChangePassworde Function: *
 
 	URL:		./api/account.php?f=changepassword
 	Method:		POST
-	Args:		op:*	OldPassword		
-				np:*	NewPassword		(Char. Don't be empty.)
+	Arguments   op:*	OldPassword		
+				np:*	NewPassword		(non-empty string)
 				ak:		AccessKey		
-	Return:		code
+	Response:	code
 
 CheckLogin Function:
 	
 	URL:		./api/account.php?f=checklogin
 	Method:		POST
-	Args:		ak:		AccessKey
-	Return:		code
+	Arguments:	ak:		AccessKey
+	Response:	code
 
 CheckUsername Function:
 
 	URL:		./api/account.php?f=checkusername
 	Method:		POST
-	Args:		u:*		Username		
-	Return:		code
+	Arguments:	u:*		Username		
+	Response:	code
 
 CheckEmailAddress Function:
 
 	URL:		./api/account.php?f=checkemailaddress
 	Method:		POST
-	Args:		e:*		EmailAddress	(Char, length<128.)
-	Return:		code
+	Arguments:	e:*		EmailAddress	(string, length<128)
+	Response:	code
 
 Register Function:
 
 	URL:		./api/account.php?f=register
 	Method:		POST
-	Args:		u:*		Username		
+	Arguments:	u:*		Username		
 				p:*		Password		
 				e:*		EmailAddress	
-	Return:		code
+	Response:	code
 				UserId
 				Username
 				EmailAddress
 
-###Favor Function
+###Favorites
 
 Add Function: *
 	
 	URL:		./api/favor.php?f=add
 	Method:		POST
-	Args:		v:*		Value			(The main data, text, length<65535.)	
-				a:		Addon			(The addon info, text, length<2^16-1.)
-				t:		LastModified	(The Time you add this record.)
-				l:		IfLove			(Int.)
-	Return:		code
+	Arguments:	v:*		Value			(The main data, string, length<65535)	
+				a:		Addon			(The addon info, string, length<2^16-1)
+				t:		LastModified	(The time you add this record)
+				l:		IfLove			(Int.) // TODO: change to true/false?
+	Response:	code
 				UserId
-				Result					(The Record Data. Include Id, UserId, Value, Addon, LastModified, CheckCode.)
+				Result					(The Record Data. Include Id, UserId, Value, Addon, LastModified, CheckCode)
 
 GetListNum Function: *
 
 	URL:		./api/favor.php?f=getlistnum
 	Method:		POST
-	Return:		code
+	Response:	code
 				UserId
-				Num						(The count of favor list.)
+				Num						(Number of items in favorites list)
 
 GetList Function: *
 
 	URL:		./api/favor.php?f=getlist
 	Method:		POST
-	Agrs:		s:		StartPoint		(The first's record's position is 0.This number must equal or bigger than 0)
-				e:		EndPoint		(This number must bigger than StartPoint.)
-	Return:		code
+	Agrs:		s:		StartPoint		(The first's record's position is 0. This number must equal or bigger than 0)
+				e:		EndPoint		(This number must bigger than StartPoint)
+	Response:	code
 				UserId
-				Num		countNum		(Records Number. This will not return if you set s&e.)
-				StartPoint
-				EndPoint				(This two only return when you set s&e)
-				Result					(All Records Data. Each element is an object include record id, user id, value, iflove, addon, lastmodified and checkcode.)
+				Num		countNum		(Number of records. This will not return if you set s and e)
+				StartPoint				(This will only return if you set s and e)
+				EndPoint				(This two only return when you set s and e)
+				Result					(All Records Data. Each element is an object include record id, user id, value, iflove, addon, lastmodified and checkcode)
 
 Get Function: *
 
 	URL:		./api/favor.php?f=get
 	Method:		POST
-	Args:		i:*		Record Id				
-	Return:		code
+	Arguments:	i:*		Record Id				
+	Response:	code
 				Result
 
 Modify Function: *
 
 	URL:		./api/favor.php?f=modify
 	Method:		POST
-	Args:		i:*		Record Id
+	Arguments:	i:*		Record Id
 				v:*		Value
 				a:		Addon
 				l:		IfLove			(You can modify this to 0 to dislike it.)
 				t:		LastModified	(The Time you modify the record.)
-	Return:		code
+	Response:	code
 				Result
 
-####Device Part
+####Device
 
 Now Function:
 	
 	URL:		./api/device.php?f=now
 	Method:		GET or POST
-	Return:		code
+	Response:	code
 				Now						(The server's time now.)
 
 GenerateDeviceId Function: *
 
 	URL:		./api/device.php?f=generatedeviceid
 	Method:		Get or POST
-	Return:		code
-				DeviceCode				(64-length char.)
+	Response:	code
+				DeviceCode				(64-character long string)
 
 GetDeviceInfo Function: *
 
 	URL:		./api/device.php?f=getdeviceinfo
 	Method:		POST
-	Args:		d:*		DeviceCode		
-	Return:		code
-				Result					(All info include DeviceCode, UserId, LastSync, MainKey.)
+	Arguments:	d:*		DeviceCode		
+	Response:	code
+				Result					(All info include DeviceCode, UserId, LastSync, MainKey)
 
 UpdateMainKey Function:	*
 
 	URL:		./api/device.php?f=updatemainkey
 	Method:		POST
-	Args:		d:*		DeviceCode
-				k:*		MainKey			(A int,stores whatever you want.)
-	Return:		code
+	Arguments:	d:*		DeviceCode
+				k:*		MainKey			(int, stores whatever you want)
+	Response:	code
 
 Pull Function: *
 
 	URL:		./api/device.php?f=pull
 	Method:		POST
-	Args:		d:*		DeviceCode
-	Return:		code
-				Result					(This contains all you favor record since you lastsync. Also includ now time.)
+	Arguments:	d:*		DeviceCode
+	Response:	code
+				Result					(This contains all you favorites record since you lastsync. Also includes now time)
 
 PullOk Function: *
 
 	URL:		./api/device.php?f=pullok
 	Method:		POST
-	Args:		d:*		DeviceCode
-				t:*						(This time will store and replace this device's lastsync time.)
-	Return:		code
+	Arguments:	d:*		DeviceCode
+				t:*						(This time will store and replace this device's lastsync time)
+	Response:	code
 
 Check Funtion: *
 
 	URL:		./api/device.php?f=check
 	Method:		POST
-	Args:		t:					
-	Return:		code
-				CheckCode				(This Code equals combine your records' checkcode (All Or before time t) and sha1 it.)
+	Arguments:	t:					
+	Response:	code
+				CheckCode				(This Code equals combine your records' checkcode (All Or before time t) and sha1 it)
 				
 CheckList Function: *
 
 	URL:		./api/device.php?f=checklist
 	Method:		POST
-	Args:		t:
-	Return:		code
-				Result					(This will return all(or before time t) your records' id and checkcode.)
+	Arguments:	t:
+	Response:	code
+				Result					(This will return all(or before time t) your records' id and checkcode)
 
 ####使用说明
 
 这里大概的介绍一下如何使用。
 
-所有的返回数据格式都为json，所有的时间的格式返回格式都精确到微秒，为形如`2014-07-16 22:12:54.424814`的字符串。
+所有的返回数据格式都为json，所有的时间的格式返回格式都精确到微秒，为形如`2014-07-16 22:12:54.424814`的字符串。// nanotime?
 
 首先account.php 部分是有关帐号的。包括`Login Logout ChangePassword CheckUsername CheckEmailAddress Register `这些函数。需要说明的是注册和改密码的API不会检测你的密码强度。这一点应该由客户端来完成。密码传输过程为明文，这一点可以靠使用HTTPS解决。
 
@@ -343,16 +345,3 @@ CheckList Function: *
 	设备B于 00：03 本地处理完。发送PullOk请求。
 
 这时候会出现 设备B不能得到设备A新增加或者修改的记录。所以客户端应该考虑使用Check和CheckList不定期的校验数据库.
-
-
-
-
-
-
-
-
-
-
-
-
-
