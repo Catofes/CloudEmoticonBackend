@@ -1,93 +1,74 @@
 import java.util.*;
+
 /**
  * Created by herbertqiao on 12/23/14.
+ *
+ * Instructions
+ * 1. sync = new Sync(apiEndpoint, httpClient);
+ * 2. sync.onLoad() //Get Info from local.
+ * 3. sync.onCheckLogin(); //Check Login Info.
+ * 4. sync.Login(username, password): //Save Login info.
+ * 5. while(true) pull();
+ *
+ * What is a Record?
+ * value: A string(<64Kb) store EVERY USEFUL INFO. such {"Data":":D","Description":"Laugh","Category":"Smile"}
+ * type: A int store TYPE INFO of the record.  such 1 means normal record. 2 means deleted record. 3 means group Info Record. 4 means deleted group Info Record.
+ * group: A int store addId info. such group.
+ * addOn:  A string(<16Mb) store addOn Info. such as collection info.
+ *
+ * Add a Record
+ * sync.add(Record)
+ *
+ * Modify a Record
+ * sync.modify(Record)
  */
 
-/* How to Use
-
-    1. sync = new Sync;
-    2. sync.onLoad() //Get Info from local.
-    3. sync.onCheckLogin(); //Check Login Info.
-    4. sync.Login(username,password): //Save Login info.
-    5. while(true) pull();
-
-    What is a Record?
-    Value: A string(<64Kb) store EVERY USEFUL INFO. such {"Data":":D","Description":"Laugh","Category":"Smile"}
-    Type: A int store TYPE INFO of the record.  such 1 means normal record. 2 means deleted record. 3 means Group Info Record. 4 means deleted Group Info Record.
-    Group: A int store addId info. such group.
-    AddOn:  A string(<16Mb) store AddOn Info. such as collection info.
-
-
-    Add a Record
-    sync.add(Record)
-
-    Modify a Record
-    sync.modify(Record)
-
-
- */
-
-
-class Record
-{
-    public int Id;
-    public int UserId;
-    public String Value;
-    public String AddOn;
-    public int Type = 1;
-    public String Group;
-    public String LastModified;
-    public String CheckCode;
-}
-
-class Account
-{
-    public String username;
-    public String password;
-    public String accesskey;
-    public String deviceid;
-    public String pullrequesttime="Never Synced";
-    public boolean login=false;
-    public String logininfo;
-    public int userid=0;
-    public int MaxId=0;
-    public HashMap<Integer,Record> data = new HashMap<Integer,Record>();
-}
 
 public class Sync
 {
-    private String url = "https://web.emoticon.moe";
-    public String Version = "0.0.1";
-    public int appid = 1;
+    // Info
+    public static final String version = "0.0.1";
+    public static final int appId = 1;
+
+    // Variables
+    public String apiEndPoint;
     private Account value = new Account();
-    public int ErrorCode;
-    public String ErrorMessage;
+    public int errorCode;
+    public String errorMessage;
+
+    // External services
+    private HttpClient httpClient;
+
+    public Sync(String apiEndPoint, HttpClient httpClient) {
+        this.apiEndPoint = apiEndPoint;
+        this.httpClient = httpClient;
+    }
 
     private int setError(String info)
     {
-        ErrorCode = 401;
-        ErrorMessage = "Remote Error At:"+info;
+        errorCode = 401;
+        errorMessage = "Remote Error At:"+info;
         return 0;
     }
 
     private int setError(int errorCode)
     {
-        ErrorCode = errorCode;
+        this.errorCode = errorCode;
         switch (errorCode) {
             case 0:
-                ErrorMessage = "No Error.";
+                errorMessage = "No Error.";
                 break;
             case 101:
-                ErrorMessage = "Login Successful.";
+                errorMessage = "Login Successful.";
                 break;
             case 201:
-                ErrorMessage = "No UserName.";
+                errorMessage = "No UserName.";
                 break;
             case 202:
-                ErrorMessage = "Login Failed.";
+                errorMessage = "Login Failed.";
                 break;
             case 301:
-                ErrorMessage = "Wait for Login.";
+                errorMessage = "Wait for Login.";
                 break;
 
         }
@@ -99,12 +80,12 @@ public class Sync
     {
         value.username = "";
         value.password = "";
-        value.accesskey = "";
-        value.deviceid = "";
-        value.pullrequesttime = "Never Synced";
+        value.accessKey = "";
+        value.deviceId = "";
+        value.pullRequestTime = "Never Synced";
         value.login = false;
-        value.logininfo = "No Login";
-        value.userid = 0;
+        value.loginInfo = "No Login";
+        value.userId = 0;
         value.data.clear();
         return 0;
     }
@@ -131,20 +112,20 @@ public class Sync
             return -1;
         }
         //NEED FINISH
-        $.post(this.url + "/api/account.php?f=login", {"u":value.username,"p":value.passowrd, "k":1})
+        $.post(this.apiEndPoint + "/api/account.php?f=login", {"u":value.username,"p":value.passowrd, "k":1})
         {
             //Here is callback. returned data format is json.
             //DECODEJSON(data)
             if (data.code == 101) {
-                this.value.accesskey = data.AccessKey;
-                this.value.userid = data.UserId;
+                this.value.accessKey = data.AccessKey;
+                this.value.userId = data.UserId;
                 this.value.login = true;
                 setError(101);
-                this.value.logininfo = "Login Success.";
+                this.value.loginInfo = "Login Success.";
                 this.onSave();
             } else {
                 setError(202);
-                this.value.logininfo = "Login Failed.";
+                this.value.loginInfo = "Login Failed.";
                 this.onSave();
             }
         }
@@ -153,12 +134,12 @@ public class Sync
 
     public int onCheckLogin()
     {
-        $.post(this.url+"/api/account.php?f=checklogin",{ "ak" : this.value.accesskey })
+        $.post(this.apiEndPoint +"/api/account.php?f=checklogin",{ "ak" : this.value.accessKey})
         //CallBack
         {
             if(data.code==302) {
                 this.value.login=false;
-                this.value.logininfo="Login Expired.";
+                this.value.loginInfo ="Login Expired.";
                 setError(301);
                 this.onLogin();
             }
@@ -171,30 +152,30 @@ public class Sync
         if(!this.value.login){
             return -1;
         }
-        $.post(this.url+"/api/device.php?f=now",{ "ak" : value.accesskey }
+        $.post(this.apiEndPoint +"/api/device.php?f=now",{ "ak" : value.accessKey}
         //CALLBACK
         {
             if(data.code==101){
-                value.pullrequesttime = data.Now;
+                value.pullRequestTime = data.Now;
             }else{
                 setError(String(data.code));
                 return -1;
             }
             onSave();
-            $.post(url+"/api/device.php?f=pull",{ "ak" : value.accesskey ,"d": value.deviceid},
+            $.post(apiEndPoint +"/api/device.php?f=pull",{ "ak" : value.accessKey,"d": value.deviceId},
             //CALLBACK
             {
                 if(data==101) {
                     for (int i = 0; i < data.Result.length; i++) {
                         int id = data.Result[i].Id;
                         Integer ID = new Integer(id);
-                        if (id > value.MaxId)
-                            value.MaxId = id;
+                        if (id > value.maxId)
+                            value.maxId = id;
                         if (value.data.get(ID) != null && value.data.get(ID).CheckCode.length() < 4) {
                             Record record = value.data.get(ID);
                             record.CheckCode = "+";
-                            value.MaxId++;
-                            Integer newID = new Integer(value.MaxId);
+                            value.maxId++;
+                            Integer newID = new Integer(value.maxId);
                             value.data.put(newID, record);
                             record.Id = data.Result[i].Id;
                             record.UserId = data.Result[i].UserId;
@@ -219,7 +200,7 @@ public class Sync
                             record.CheckCode = data.Result[i].CheckCode;
                             value.data.put(ID, record);
                         }
-                        this.value.pullrequesttime = data.Result[0].PullTime;
+                        this.value.pullRequestTime = data.Result[0].PullTime;
                     }
                     onSave();
                     setError(101);
@@ -244,14 +225,14 @@ public class Sync
             Record record = entry.getValue();
             if(record.CheckCode=="+"){
                 value.data.remove(ID);
-                $.post(this.url+"/api/favor.php?f=add",{"ak": value.accesskey, "v": record.Value,"a":record.AddOn "l":record.Type, "g": record.Group,"t": value.pullrequesttime},
+                $.post(this.apiEndPoint +"/api/favor.php?f=add",{"ak": value.accessKey, "v": record.Value,"a":record.AddOn "l":record.Type, "g": record.Group,"t": value.pullRequestTime},
                 //CALLBACK
                 {
                     if(data.code == 101) {
                         Integer returnID = new Integer(data.Result.Id);
                         if (this.value.data.get(returnID) != null) {
-                            value.MaxId++;
-                            this.value.data.put(new Integer(value.MaxId), this.value.data.get(returnID));
+                            value.maxId++;
+                            this.value.data.put(new Integer(value.maxId), this.value.data.get(returnID));
                         }
                         record.Id = data.Result.Id;
                         record.UserId = data.Result.UserId;
@@ -266,7 +247,7 @@ public class Sync
                     }
                 }
             }else if(record.CheckCode=="*") {
-                $.post(this.url+"/api/favor.php?f=modify",{"ak": value.accesskey, "i": record.Id, "v": record.Value,"a":record.AddOn "l":record.Type,"g":record.Group, "t": value.pullrequesttime},
+                $.post(this.apiEndPoint +"/api/favor.php?f=modify",{"ak": value.accessKey, "i": record.Id, "v": record.Value,"a":record.AddOn "l":record.Type,"g":record.Group, "t": value.pullRequestTime},
                 {
                     if(data.code == 101) {
                         record.Id = data.Result.Id;
@@ -291,7 +272,7 @@ public class Sync
     {
         if(!value.login)
             return -1;
-        $.post(this.url+"/api/device.php?f=pullok",{"ak":value.accesskey, 'd' : value.deviceid , 't' : value.pullrequesttime});
+        $.post(this.apiEndPoint +"/api/device.php?f=pullok",{"ak":value.accessKey, 'd' : value.deviceId, 't' : value.pullRequestTime});
         {
             //No CallBack
         }
@@ -320,9 +301,9 @@ public class Sync
     public int add(Record record)
     {
         record.CheckCode="+";
-        value.MaxId++;
-        record.Id=value.MaxId;
-        Integer ID = new Integer(value.MaxId);
+        value.maxId++;
+        record.Id=value.maxId;
+        Integer ID = new Integer(value.maxId);
         value.data.put(ID, record);
         return record.Id;
     }
