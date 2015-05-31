@@ -4,14 +4,14 @@ import java.util.*;
  * Created by herbertqiao on 12/23/14.
  *
  * Instructions
- * 1. sync = new Sync(apiEndpoint, httpClient);
+ * 1. sync = new Sync(apiEndpoint, httpService);
  * 2. sync.onLoad() //Get Info from local.
  * 3. sync.onCheckLogin(); //Check Login Info.
  * 4. sync.Login(username, password): //Save Login info.
  * 5. while(true) pull();
  *
  * What is a Record?
- * value: A string(<64Kb) store EVERY USEFUL INFO. such {"Data":":D","Description":"Laugh","Category":"Smile"}
+ * user: A string(<64Kb) store EVERY USEFUL INFO. such {"Data":":D","Description":"Laugh","Category":"Smile"}
  * type: A int store TYPE INFO of the record.  such 1 means normal record. 2 means deleted record. 3 means group Info Record. 4 means deleted group Info Record.
  * group: A int store addId info. such group.
  * addOn:  A string(<16Mb) store addOn Info. such as collection info.
@@ -27,238 +27,280 @@ import java.util.*;
 public class Sync
 {
     // Info
-    public static final String version = "0.0.1";
-    public static final int appId = 1;
+    public static final String VERSION = "0.0.1";
+    public static final int APP_ID = 1;
 
     // Variables
     public String apiEndPoint;
-    private Account value = new Account();
-    public int errorCode;
-    public String errorMessage;
+    private Account user;
+
+    // Callbacks
+    public interface BooleanFinishCallback {
+        void finish(boolean b, String statusCode, String message);
+    }
 
     // External services
-    private HttpClient httpClient;
+    private HttpService httpService;
+    private JsonService jsonService;
 
-    public Sync(String apiEndPoint, HttpClient httpClient) {
+    public Sync(
+            String apiEndPoint,
+            HttpService httpService,
+            JsonService jsonService
+    ) {
         this.apiEndPoint = apiEndPoint;
-        this.httpClient = httpClient;
+        this.httpService = httpService;
+        this.jsonService = jsonService;
     }
 
-    private int setError(String info)
+    private String getMessageFromStatusCode(String errorCode)
     {
-        errorCode = 401;
-        errorMessage = "Remote Error At:"+info;
-        return 0;
+        if (errorCode.equals("101")) return "OK.";
+        if (errorCode.equals("201")) return "Please login.";
+        if (errorCode.equals("202")) return "Already logged in. Please logout first.";
+        if (errorCode.equals("203")) return "Username or password incorrect.";
+        if (errorCode.equals("204")) return "SQL Error. We are sorry about that. Please contact administrator to solve the issue.";
+        if (errorCode.equals("205")) return "Access denied. Your account was banned.";
+        if (errorCode.equals("206")) return "Wrong password.";
+        if (errorCode.equals("207")) return "Please input password.";
+        if (errorCode.equals("208")) return "Username illegal.";
+        if (errorCode.equals("209")) return "Username exists.";
+        if (errorCode.equals("210")) return "Email address illegal.";
+        if (errorCode.equals("211")) return "Email address exists.";
+        if (errorCode.equals("212")) return "Data too long.";
+        if (errorCode.equals("213")) return "Please input user.";
+        if (errorCode.equals("214")) return "Please input id.";
+        if (errorCode.equals("215")) return "Wrong input.";
+        if (errorCode.equals("216")) return "Permission denied.";
+        if (errorCode.equals("217")) return "No record.";
+        if (errorCode.equals("218")) return "Device id is needed.";
+        if (errorCode.equals("219")) return "Please input MainKey";
+        if (errorCode.equals("220")) return "Wrong device id";
+        if (errorCode.equals("404")) return "Page not found";
+        return "No error.";
     }
 
-    private int setError(int errorCode)
-    {
-        this.errorCode = errorCode;
-        switch (errorCode) {
-            case 0:
-                errorMessage = "No Error.";
-                break;
-            case 101:
-                errorMessage = "Login Successful.";
-                break;
-            case 201:
-                errorMessage = "No UserName.";
-                break;
-            case 202:
-                errorMessage = "Login Failed.";
-                break;
-            case 301:
-                errorMessage = "Wait for Login.";
-                break;
 
+    // This function is save all info to local.
+    // TODO
+    public void onSave()
+    {
+    }
+
+    // This function is load all info
+    // TODO
+    public void onLoad()
+    {
+    }
+
+    private void onLogin(String username, String password, boolean keepLogin, BooleanFinishCallback callback)
+    {
+        if (user.getUsername().equals("")) {
+            String statusCode = "201";
+            callback.finish(false, statusCode, getMessageFromStatusCode(statusCode));
         }
-        return 0;
-    }
-
-    //This function to reset the class.
-    public int init()
-    {
-        value.username = "";
-        value.password = "";
-        value.accessKey = "";
-        value.deviceId = "";
-        value.pullRequestTime = "Never Synced";
-        value.login = false;
-        value.loginInfo = "No Login";
-        value.userId = 0;
-        value.data.clear();
-        return 0;
-    }
-
-
-    //This function is save all info to local.
-    // NEED FINISH
-    public int onSave()
-    {
-        return 0;
-    }
-
-    //This function is load all info
-    //NEED FINISH
-    public int onLoad()
-    {
-        return 0;
-    }
-
-    private int onLogin()
-    {
-        if (value.username.equals("")) {
-            setError(201);
-            return -1;
-        }
-        //NEED FINISH
-        $.post(this.apiEndPoint + "/api/account.php?f=login", {"u":value.username,"p":value.passowrd, "k":1})
+        else
         {
-            //Here is callback. returned data format is json.
-            //DECODEJSON(data)
-            if (data.code == 101) {
-                this.value.accessKey = data.AccessKey;
-                this.value.userId = data.UserId;
-                this.value.login = true;
-                setError(101);
-                this.value.loginInfo = "Login Success.";
-                this.onSave();
-            } else {
-                setError(202);
-                this.value.loginInfo = "Login Failed.";
-                this.onSave();
-            }
+            // TODO: post json object
+            httpService.post(
+                    this.apiEndPoint + "/api/account.php?f=login",
+                    "u, p, k"
+                    , new HttpService.PostFinishCallback() {
+                        @Override
+                        public void success(String data) {
+                            RequestStatus status = getRequestStatusFromJsonString(data);
+                            if (status.statusCode.equals("101")) {
+                                user.setAccessKey(jsonService.getFieldAsString(data, "AccessKey"));
+                                user.setUserId(jsonService.getFieldAsInteger(data, "UserId"));
+                                user.setLogin(true);
+                                user.setLoginInfo(status.message);
+                                callback.finish(true, status.statusCode, status.message);
+                            } else {
+                                user.setLoginInfo(status.message);
+                                callback.finish(false, status.statusCode, status.message);
+                            }
+                            onSave();
+                        }
+
+                        @Override
+                        public void fail() {
+                            callback.finish(false, "", "");
+                        }
+                    });
         }
-        return 0;
     }
 
-    public int onCheckLogin()
+    public void onCheckLogin(BooleanFinishCallback callback)
     {
-        $.post(this.apiEndPoint +"/api/account.php?f=checklogin",{ "ak" : this.value.accessKey})
-        //CallBack
-        {
-            if(data.code==302) {
-                this.value.login=false;
-                this.value.loginInfo ="Login Expired.";
-                setError(301);
-                this.onLogin();
-            }
-        }
+        // TODO: post json object
+        httpService.post(
+                this.apiEndPoint + "/api/account.php?f=checklogin",
+                "ak",
+                new HttpService.PostFinishCallback() {
+                    @Override
+                    public void success(String data) {
+                        RequestStatus status = getRequestStatusFromJsonString(data);
+                        if (status.statusCode.equals("302")) {
+                            user.setLogin(false);
+                            // TODO: 301?
+                            user.setLoginInfo("Login Expired.");
+                            // TODO: on login again?
+                            callback.finish(true, status.statusCode, status.message);
+                        }
+                        else
+                        {
+                            callback.finish(false, status.statusCode, status.message);
+                        }
+                    }
+
+                    @Override
+                    public void fail() {
+                        callback.finish(false, "", "");
+                    }
+                }
+
+        );
     }
 
-    public int pull()
+    public void pull(BooleanFinishCallback callback)
     {
         onLoad();
-        if(!this.value.login){
-            return -1;
+        if (!this.user.isLogin()) {
+            callback.finish(false, "", "");
         }
-        $.post(this.apiEndPoint +"/api/device.php?f=now",{ "ak" : value.accessKey}
-        //CALLBACK
+        else
         {
-            if(data.code==101){
-                value.pullRequestTime = data.Now;
-            }else{
-                setError(String(data.code));
-                return -1;
-            }
-            onSave();
-            $.post(apiEndPoint +"/api/device.php?f=pull",{ "ak" : value.accessKey,"d": value.deviceId},
-            //CALLBACK
-            {
-                if(data==101) {
-                    for (int i = 0; i < data.Result.length; i++) {
-                        int id = data.Result[i].Id;
-                        Integer ID = new Integer(id);
-                        if (id > value.maxId)
-                            value.maxId = id;
-                        if (value.data.get(ID) != null && value.data.get(ID).CheckCode.length() < 4) {
-                            Record record = value.data.get(ID);
-                            record.CheckCode = "+";
-                            value.maxId++;
-                            Integer newID = new Integer(value.maxId);
-                            value.data.put(newID, record);
-                            record.Id = data.Result[i].Id;
-                            record.UserId = data.Result[i].UserId;
-                            record.Value = data.Result[i].Value;
-                            record.AddOn = data.Result[i].AddOn;
-                            record.Type = data.Result[i].Type;
-                            record.Group = data.Result[i].Group;
-                            record.LastModified = data.Result[i].LastModified;
-                            record.CheckCode = data.Result[i].CheckCode;
-                            value.data.put(ID, record);
-                        } else if (value.data.get(ID) != null && value.data.get(ID).CheckCode == data.Result[i].CheckCode) {
-                            continue;
-                        }else{
-                            Record record = new Record();
-                            record.Id = data.Result[i].Id;
-                            record.UserId = data.Result[i].UserId;
-                            record.Value = data.Result[i].Value;
-                            record.AddOn = data.Result[i].AddOn;
-                            record.Type = data.Result[i].Type;
-                            record.Group = data.Result[i].Group;
-                            record.LastModified = data.Result[i].LastModified;
-                            record.CheckCode = data.Result[i].CheckCode;
-                            value.data.put(ID, record);
+            httpService.post(
+                    this.apiEndPoint + "/api/device.php?f=now",
+                    "ak",
+                    new HttpService.PostFinishCallback() {
+                        @Override
+                        public void success(String data) {
+                            RequestStatus status = getRequestStatusFromJsonString(data);
+                            if (status.statusCode.equals("101")) {
+                                user.setPullRequestTime(jsonService.getFieldAsString(data, "Now"));
+                                onSave();
+                                httpService.post(
+                                        apiEndPoint + "/api/device.php?f=pull",
+                                        "ak, d",
+                                        new HttpService.PostFinishCallback() {
+                                            @Override
+                                            public void success(String data) {
+                                                RequestStatus status1 = getRequestStatusFromJsonString(data);
+                                                    if(status1.statusCode.equals("101")) {
+                                                        for (int i = 0; i < data.Result.length; i++) {
+                                                            int id = data.Result[i].Id;
+                                                            Integer ID = new Integer(id);
+                                                            if (id > user.maxId)
+                                                                user.maxId = id;
+                                                            if (user.data.get(ID) != null && user.data.get(ID).CheckCode.length() < 4) {
+                                                                Record record = user.data.get(ID);
+                                                                record.CheckCode = "+";
+                                                                user.maxId++;
+                                                                Integer newID = new Integer(user.maxId);
+                                                                user.data.put(newID, record);
+                                                                record.Id = data.Result[i].Id;
+                                                                record.UserId = data.Result[i].UserId;
+                                                                record.user = data.Result[i].user;
+                                                                record.AddOn = data.Result[i].AddOn;
+                                                                record.Type = data.Result[i].Type;
+                                                                record.Group = data.Result[i].Group;
+                                                                record.LastModified = data.Result[i].LastModified;
+                                                                record.CheckCode = data.Result[i].CheckCode;
+                                                                user.data.put(ID, record);
+                                                            } else if (user.data.get(ID) != null && user.data.get(ID).CheckCode == data.Result[i].CheckCode) {
+                                                                continue;
+                                                            }else{
+                                                                Record record = new Record();
+                                                                record.Id = data.Result[i].Id;
+                                                                record.UserId = data.Result[i].UserId;
+                                                                record.user = data.Result[i].user;
+                                                                record.AddOn = data.Result[i].AddOn;
+                                                                record.Type = data.Result[i].Type;
+                                                                record.Group = data.Result[i].Group;
+                                                                record.LastModified = data.Result[i].LastModified;
+                                                                record.CheckCode = data.Result[i].CheckCode;
+                                                                user.data.put(ID, record);
+                                                            }
+                                                            this.user.pullRequestTime = data.Result[0].PullTime;
+                                                        }
+                                                        onSave();
+                                                        getMessageFromStatusCode(101);
+                                                    }else {
+                                                        setError(data.code);
+                                                        return -1;
+                                                    }
+                                                    push();
+                                                    pushok();
+
+                                            }
+
+                                            @Override
+                                            public void fail() {
+                                                callback.finish(false, "", "");
+                                            }
+                                        }
+                                );
+                            }
+                            else
+                            {
+                                callback.finish(false, status.statusCode, status.message);
+                            }
                         }
-                        this.value.pullRequestTime = data.Result[0].PullTime;
-                    }
-                    onSave();
-                    setError(101);
-                }else {
-                    setError(data.code);
-                    return -1;
-                }
-                push();
-                pushok();
-            }
+
+                        @Override
+                        public void fail() {
+                            callback.finish(false, "", "");
+                        }
+                    });
         }
     }
 
     private int push()
     {
-        if(this.value.login==false)
+        if(this.user.login==false)
             return -1;
-        Iterator iter =value.data.entrySet().iterator();
+        Iterator iter =user.data.entrySet().iterator();
         while(iter.hasNext()){
             Map.Entry<Integer, Record> entry =(Map.Entry<Integer, Record>) iter.next();
             Integer ID = entry.getKey();
-            Record record = entry.getValue();
+            Record record = entry.getuser();
             if(record.CheckCode=="+"){
-                value.data.remove(ID);
-                $.post(this.apiEndPoint +"/api/favor.php?f=add",{"ak": value.accessKey, "v": record.Value,"a":record.AddOn "l":record.Type, "g": record.Group,"t": value.pullRequestTime},
+                user.data.remove(ID);
+                $.post(this.apiEndPoint +"/api/favor.php?f=add",{"ak": user.accessKey, "v": record.user,"a":record.AddOn "l":record.Type, "g": record.Group,"t": user.pullRequestTime},
                 //CALLBACK
                 {
                     if(data.code == 101) {
                         Integer returnID = new Integer(data.Result.Id);
-                        if (this.value.data.get(returnID) != null) {
-                            value.maxId++;
-                            this.value.data.put(new Integer(value.maxId), this.value.data.get(returnID));
+                        if (this.user.data.get(returnID) != null) {
+                            user.maxId++;
+                            this.user.data.put(new Integer(user.maxId), this.user.data.get(returnID));
                         }
                         record.Id = data.Result.Id;
                         record.UserId = data.Result.UserId;
-                        record.Value = data.Result.Value;
+                        record.user = data.Result.user;
                         record.AddOn = data.Result.AddOn;
                         record.Type = data.Result.Type;
                         record.Group = data.Result.Group;
                         record.LastModified = data.Result.LastModified;
                         record.CheckCode = data.Result.CheckCode;
-                        value.data.put(ID, record);
+                        user.data.put(ID, record);
                         this.onSave();
                     }
                 }
             }else if(record.CheckCode=="*") {
-                $.post(this.apiEndPoint +"/api/favor.php?f=modify",{"ak": value.accessKey, "i": record.Id, "v": record.Value,"a":record.AddOn "l":record.Type,"g":record.Group, "t": value.pullRequestTime},
+                $.post(this.apiEndPoint +"/api/favor.php?f=modify",{"ak": user.accessKey, "i": record.Id, "v": record.user,"a":record.AddOn "l":record.Type,"g":record.Group, "t": user.pullRequestTime},
                 {
                     if(data.code == 101) {
-                        record.Id = data.Result.Id;
+                        record.Id = data.Result.Id;2
                         record.UserId = data.Result.UserId;
-                        record.Value = data.Result.Value;
+                        record.user = data.Result.user;
                         record.AddOn = data.Result.AddOn;
                         record.Type = data.Result.Type;
                         record.Group = data.Result.Group;
                         record.LastModified = data.Result.LastModified;
                         record.CheckCode = data.Result.CheckCode;
-                        value.data.put(ID, record);
+                        user.data.put(ID, record);
                         this.onSave();
                     }
 
@@ -270,9 +312,9 @@ public class Sync
 
     private int pushok()
     {
-        if(!value.login)
+        if(!user.login)
             return -1;
-        $.post(this.apiEndPoint +"/api/device.php?f=pullok",{"ak":value.accessKey, 'd' : value.deviceId, 't' : value.pullRequestTime});
+        $.post(this.apiEndPoint +"/api/device.php?f=pullok",{"ak":user.accessKey, 'd' : user.deviceId, 't' : user.pullRequestTime});
         {
             //No CallBack
         }
@@ -280,8 +322,8 @@ public class Sync
 
     public int login(String username,String password)
     {
-        value.username=username;
-        value.password=password;
+        user.username=username;
+        user.password=password;
         SetError(301);
         onLogin();
         return 0;
@@ -290,10 +332,10 @@ public class Sync
     public ArrayList<Record> getAllRecord()
     {
         ArrayList<Record> result = new ArrayList<Record>();
-        Iterator iter =value.data.entrySet().iterator();
+        Iterator iter =user.data.entrySet().iterator();
         while(iter.hasNext()) {
             Map.Entry<Integer, Record> entry = (Map.Entry<Integer, Record>) iter.next();
-            result.add(entry.getValue());
+            result.add(entry.getuser());
         }
         return result;
     }
@@ -301,10 +343,10 @@ public class Sync
     public int add(Record record)
     {
         record.CheckCode="+";
-        value.maxId++;
-        record.Id=value.maxId;
-        Integer ID = new Integer(value.maxId);
-        value.data.put(ID, record);
+        user.maxId++;
+        record.Id=user.maxId;
+        Integer ID = new Integer(user.maxId);
+        user.data.put(ID, record);
         return record.Id;
     }
 
@@ -312,8 +354,20 @@ public class Sync
     {
         record.CheckCode="*";
         Integer ID = new Integer(record.Id);
-        value.data.put(ID, record);
+        user.data.put(ID, record);
         return record.Id;
+    }
+
+    private class RequestStatus {
+        public String statusCode;
+        public String message;
+    }
+
+    private RequestStatus getRequestStatusFromJsonString(String data) {
+        RequestStatus status = new RequestStatus();
+        status.statusCode = jsonService.getFieldAsString(data, "code");
+        status.message = getMessageFromStatusCode(status.statusCode);
+        return status;
     }
 }
 
