@@ -72,7 +72,7 @@ function EchoErrorCode($code)
 		'302'=>'否。',
 		'404'=>'请求不存在。',
 	);
-	echo json_encode(Array('code'=>$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
+	echo json_encode(Array('code'=>(int)$code,'info'=>$info[$code],'info_cn'=>$info_cn[$code]));
 	exit(0);
 }
 
